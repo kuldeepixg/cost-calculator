@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Broadcasting Cost Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .calculator-container {
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* More rounded */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            padding: 2.5rem; /* More padding */
+            width: 100%;
+            max-width: 700px; /* Wider for better layout */
+            box-sizing: border-box;
+        }
+        .section-title {
+            font-size: 1.5rem; /* Larger title */
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 1.25rem; /* More spacing */
+        }
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+        .input-group input[type="range"] {
+            width: 100%;
+            --webkit-appearance: none;
+            height: 8px; /* Thicker slider */
+            background: #e0e0e0;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        .input-group input[type="range"]:hover {
+            opacity: 1;
+        }
+        .input-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px; /* Larger thumb */
+            height: 20px;
+            border-radius: 50%;
+            background: #4F46E5; /* Indigo */
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .input-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4F46E5;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .input-group select {
+            width: 100%;
+            padding: 0.75rem; /* More padding */
+            border: 1px solid #ddd;
+            border-radius: 0.5rem; /* Rounded */
+            background-color: #fff;
+            font-size: 1rem;
+            color: #333;
+            appearance: none; /* Remove default arrow */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.25rem;
+        }
+        .toggle-button {
+            background-color: #6366F1; /* Darker Indigo */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem; /* More rounded */
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            display: block;
+            width: fit-content;
+            margin: 1.5rem auto; /* Center button */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .toggle-button:hover {
+            background-color: #4F46E5; /* Indigo on hover */
+            transform: translateY(-1px);
+        }
+        .calculate-button {
+            background-color: #10B981; /* Emerald */
+            color: white;
+            padding: 1rem 2.5rem; /* Larger button */
+            border-radius: 0.75rem;
+            font-size: 1.125rem; /* Larger text */
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            display: block;
+            width: fit-content;
+            margin: 2rem auto 1.5rem; /* Center button */
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        .calculate-button:hover {
+            background-color: #059669; /* Darker Emerald on hover */
+            transform: translateY(-2px);
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive grid */
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+        .result-item {
+            background-color: #F3F4F6; /* Light gray background */
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .result-item .label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+        .result-item .value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #333;
+        }
+        .grand-total {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #E5E7EB;
+        }
+        .grand-total .label {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #4F46E5; /* Indigo */
+            margin-bottom: 0.5rem;
+        }
+        .grand-total .value {
+            font-size: 2.5rem; /* Very large total */
+            font-weight: 800;
+            color: #1F2937; /* Darker text */
+        }
+        .range-value {
+            font-weight: 500;
+            color: #4F46E5;
+            margin-left: 0.5rem;
+        }
+        .hidden {
+            display: none;
+        }
+        .help-text {
+            font-size: 0.85rem;
+            color: #777;
+            margin-top: 0.25rem;
+            margin-bottom: 0.5rem;
+            padding-left: 0.25rem;
+            border-left: 2px solid #6366F1;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1 class="section-title">Cloud Broadcasting Cost Calculator</h1>
+
+        <!-- Basic Settings -->
+        <div class="basic-settings">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Core Production Settings</h2>
+
+            <div class="input-group">
+                <label for="outputResolution">Output Resolution:</label>
+                <select id="outputResolution">
+                    <option value="720p">HD 720p</option>
+                    <option value="1080p" selected>Full HD 1080p</option>
+                    <option value="4k">4K UHD</option>
+                </select>
+                <div id="outputResolutionHelp" class="help-text"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="outputFrameRate">Output Frame Rate:</label>
+                <select id="outputFrameRate">
+                    <option value="30fps">30 fps</option>
+                    <option value="60fps" selected>60 fps</option>
+                </select>
+                <div id="outputFrameRateHelp" class="help-text"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="concurrentInputs">Concurrent Video Inputs: <span id="concurrentInputsValue" class="range-value">2</span></label>
+                <input type="range" id="concurrentInputs" min="1" max="8" value="2">
+                <div class="help-text">Number of simultaneous camera feeds, game captures, or other video sources.</div>
+            </div>
+
+            <div class="input-group">
+                <label for="hoursPerMonth">Live Production Hours per Month: <span id="hoursPerMonthValue" class="range-value">100</span></label>
+                <input type="range" id="hoursPerMonth" min="10" max="720" value="100">
+                <div class="help-text">Total hours your cloud studio is actively processing live broadcasts.</div>
+            </div>
+
+            <div class="input-group">
+                <label for="mediaConnectFlows">High-Quality Media Flows (SRT/RIST): <span id="mediaConnectFlowsValue" class="range-value">1</span></label>
+                <input type="range" id="mediaConnectFlows" min="0" max="5" value="1">
+                <div class="help-text">Dedicated, reliable video transport for critical feeds.</div>
+            </div>
+        </div>
+
+        <!-- Advanced Settings Toggle -->
+        <button id="toggleAdvanced" class="toggle-button">Show Advanced Settings</button>
+
+        <!-- Advanced Settings -->
+        <div id="advancedSettings" class="advanced-settings hidden">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Advanced Storage & Delivery</h2>
+
+            <div class="input-group">
+                <label for="recordingHours">Recording Hours per Month: <span id="recordingHoursValue" class="range-value">0</span></label>
+                <input type="range" id="recordingHours" min="0" max="500" value="0" step="10">
+                <div class="help-text">Total hours of live content recorded for VOD or archiving.</div>
+            </div>
+
+            <div class="input-group">
+                <label for="recordingQuality">Recording Quality:</label>
+                <select id="recordingQuality">
+                    <option value="low">Low (Efficient Archive)</option>
+                    <option value="medium" selected>Medium (Standard VOD)</option>
+                    <option value="high">High (Broadcast Master)</option>
+                </select>
+                <div id="recordingQualityHelp" class="help-text"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="outputDestinations">Number of Output Destinations: <span id="outputDestinationsValue" class="range-value">1</span></label>
+                <input type="range" id="outputDestinations" min="1" max="10" value="1">
+                <div class="help-text">Number of platforms/CDNs you're simultaneously streaming to.</div>
+            </div>
+
+            <div class="input-group">
+                <label for="peakViewers">Peak Concurrent Viewers (PCV): <span id="peakViewersValue" class="range-value">1000</span></label>
+                <input type="range" id="peakViewers" min="0" max="100000" value="1000" step="1000">
+                <div class="help-text">Estimated maximum simultaneous viewers for your streams.</div>
+            </div>
+
+            <div class="input-group">
+                <label for="avgViewDuration">Average View Duration (minutes): <span id="avgViewDurationValue" class="range-value">30</span></label>
+                <input type="range" id="avgViewDuration" min="1" max="120" value="30" step="5">
+                <div class="help-text">Average time a viewer watches your content.</div>
+            </div>
+
+            <div class="input-group">
+                <label for="redundancyLevel">Redundancy Level:</label>
+                <select id="redundancyLevel">
+                    <option value="none">None (Single Point of Failure)</option>
+                    <option value="active-standby" selected>Active/Standby (Basic Failover)</option>
+                    <option value="n+1">N+1 (High Availability)</option>
+                </select>
+                <div id="redundancyLevelHelp" class="help-text"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="managedServiceTier">Managed Service Tier:</label>
+                <select id="managedServiceTier">
+                    <option value="basic">Basic Monitoring</option>
+                    <option value="proactive" selected>Proactive Monitoring & Alerting</option>
+                    <option value="full">Full Managed Operations</option>
+                </select>
+                <div id="managedServiceTierHelp" class="help-text"></div>
+            </div>
+        </div>
+
+        <button id="calculateCost" class="calculate-button">Calculate Estimated Cost</button>
+
+        <!-- Results Display -->
+        <div class="results-grid">
+            <div class="result-item">
+                <div class="label">Compute Cost</div>
+                <div class="value" id="computeCost">$0.00</div>
+            </div>
+            <div class="result-item">
+                <div class="label">Storage Cost</div>
+                <div class="value" id="storageCost">$0.00</div>
+            </div>
+            <div class="result-item">
+                <div class="label">Media Flow Cost</div>
+                <div class="value" id="mediaConnectCost">$0.00</div>
+            </div>
+            <div class="result-item">
+                <div class="label">CDN & Egress Cost</div>
+                <div class="value" id="cdnEgressCost">$0.00</div>
+            </div>
+            <div class="result-item">
+                <div class="label">Redundancy Cost</div>
+                <div class="value" id="redundancyCost">$0.00</div>
+            </div>
+            <div class="result-item">
+                <div class="label">Managed Service Cost</div>
+                <div class="value" id="managedServiceCost">$0.00</div>
+            </div>
+        </div>
+
+        <div class="grand-total">
+            <div class="label">Estimated Grand Total</div>
+            <div class="value" id="grandTotal">$0.00 /mo</div>
+        </div>
+    </div>
+
+    <script>
+        // Cost Constants (Placeholder values - adjust as needed for real pricing)
+        // These are illustrative and should be replaced with actual pricing models.
+        const BASE_COST_PER_HOUR_720P_30FPS = 0.75; // Small instance equivalent
+        const BASE_COST_PER_HOUR_1080P_60FPS = 2.00; // Medium instance equivalent
+        const BASE_COST_PER_HOUR_4K_60FPS = 5.00; // Large instance equivalent
+
+        const COST_PER_INPUT = 0.25; // Cost multiplier per concurrent input per hour
+        const COST_PER_FLOW_MEDIACONNECT = 50.00; // Per flow per month, flat rate for simplicity
+
+        const RECORDING_BITRATE_MBPS = { // Mbps for calculating storage
+            'low': 5,
+            'medium': 15,
+            'high': 50
+        };
+        const COST_PER_GB_STORAGE = 0.05; // For both active and archival storage, simplified
+
+        const COST_PER_TB_CDN_EGRESS = 40.00; // CDN egress cost per TB
+        const COST_PER_DESTINATION = 10.00; // Additional cost per output destination
+
+        const REDUNDANCY_MULTIPLIER = {
+            'none': 0.0,
+            'active-standby': 0.50, // 50% additional compute cost for standby
+            'n+1': 1.00 // 100% additional compute cost for N+1
+        };
+
+        const MANAGED_SERVICE_MULTIPLIER = { // Percentage of subtotal
+            'basic': 0.05,
+            'proactive': 0.15,
+            'full': 0.30
+        };
+
+        // Configuration details for help texts
+        const OUTPUT_RESOLUTION_DETAILS = {
+            '720p': 'Suitable for web streaming, mobile, and basic esports broadcasts.',
+            '1080p': 'Standard for professional esports and tech event broadcasts, offering crisp visuals.',
+            '4k': 'For premium, high-fidelity productions requiring ultimate visual clarity.'
+        };
+        const OUTPUT_FRAMERATE_DETAILS = {
+            '30fps': 'Standard for most web content, good for talking heads and slower action.',
+            '60fps': 'Essential for smooth motion in esports, fast-paced action, and high-quality live events.'
+        };
+        const RECORDING_QUALITY_DETAILS = {
+            'low': 'Space-efficient for long-term archives or basic review (approx. 5 Mbps).',
+            'medium': 'Balanced quality for standard VOD and general re-use (approx. 15 Mbps).',
+            'high': 'Preserves maximum detail for broadcast masters and high-end post-production (approx. 50 Mbps).'
+        };
+        const REDUNDANCY_LEVEL_DETAILS = {
+            'none': 'Cost-effective, but any single component failure will disrupt the broadcast.',
+            'active-standby': 'A secondary system is ready to take over in case of primary failure, minimizing downtime.',
+            'n+1': 'Ensures continuous operation even with multiple component failures, highest reliability.'
+        };
+        const MANAGED_SERVICE_TIER_DETAILS = {
+            'basic': 'Automated monitoring with alerts; self-service issue resolution.',
+            'proactive': 'Includes basic monitoring plus active team oversight and priority support.',
+            'full': 'Comprehensive management of your entire broadcasting infrastructure, 24/7 support, and dedicated resources.'
+        };
+
+
+        // Get DOM Elements
+        const outputResolutionSelect = document.getElementById('outputResolution');
+        const outputResolutionHelpDiv = document.getElementById('outputResolutionHelp');
+        const outputFrameRateSelect = document.getElementById('outputFrameRate');
+        const outputFrameRateHelpDiv = document.getElementById('outputFrameRateHelp');
+        const concurrentInputsInput = document.getElementById('concurrentInputs');
+        const concurrentInputsValueSpan = document.getElementById('concurrentInputsValue');
+        const hoursPerMonthInput = document.getElementById('hoursPerMonth');
+        const hoursPerMonthValueSpan = document.getElementById('hoursPerMonthValue');
+        const mediaConnectFlowsInput = document.getElementById('mediaConnectFlows');
+        const mediaConnectFlowsValueSpan = document.getElementById('mediaConnectFlowsValue');
+
+        const toggleAdvancedButton = document.getElementById('toggleAdvanced');
+        const advancedSettingsDiv = document.getElementById('advancedSettings');
+
+        const recordingHoursInput = document.getElementById('recordingHours');
+        const recordingHoursValueSpan = document.getElementById('recordingHoursValue');
+        const recordingQualitySelect = document.getElementById('recordingQuality');
+        const recordingQualityHelpDiv = document.getElementById('recordingQualityHelp');
+        const outputDestinationsInput = document.getElementById('outputDestinations');
+        const outputDestinationsValueSpan = document.getElementById('outputDestinationsValue');
+        const peakViewersInput = document.getElementById('peakViewers');
+        const peakViewersValueSpan = document.getElementById('peakViewersValue');
+        const avgViewDurationInput = document.getElementById('avgViewDuration');
+        const avgViewDurationValueSpan = document.getElementById('avgViewDurationValue');
+        const redundancyLevelSelect = document.getElementById('redundancyLevel');
+        const redundancyLevelHelpDiv = document.getElementById('redundancyLevelHelp');
+        const managedServiceTierSelect = document.getElementById('managedServiceTier');
+        const managedServiceTierHelpDiv = document.getElementById('managedServiceTierHelp');
+
+        const calculateCostButton = document.getElementById('calculateCost');
+
+        const computeCostDisplay = document.getElementById('computeCost');
+        const storageCostDisplay = document.getElementById('storageCost');
+        const mediaConnectCostDisplay = document.getElementById('mediaConnectCost');
+        const cdnEgressCostDisplay = document.getElementById('cdnEgressCost');
+        const redundancyCostDisplay = document.getElementById('redundancyCost');
+        const managedServiceCostDisplay = document.getElementById('managedServiceCost');
+        const grandTotalDisplay = document.getElementById('grandTotal');
+
+        // Update slider value displays
+        function updateSliderValue(inputElement, valueSpan) {
+            valueSpan.textContent = inputElement.value;
+        }
+
+        // Function to update help text for select elements
+        function updateHelpText(selectElement, helpDiv, detailsMap) {
+            const selectedValue = selectElement.value;
+            helpDiv.textContent = detailsMap[selectedValue];
+        }
+
+        // Initial updates for sliders and help texts
+        updateSliderValue(concurrentInputsInput, concurrentInputsValueSpan);
+        updateSliderValue(hoursPerMonthInput, hoursPerMonthValueSpan);
+        updateSliderValue(mediaConnectFlowsInput, mediaConnectFlowsValueSpan);
+        updateSliderValue(recordingHoursInput, recordingHoursValueSpan);
+        updateSliderValue(outputDestinationsInput, outputDestinationsValueSpan);
+        updateSliderValue(peakViewersInput, peakViewersValueSpan);
+        updateSliderValue(avgViewDurationInput, avgViewDurationValueSpan);
+
+        updateHelpText(outputResolutionSelect, outputResolutionHelpDiv, OUTPUT_RESOLUTION_DETAILS);
+        updateHelpText(outputFrameRateSelect, outputFrameRateHelpDiv, OUTPUT_FRAMERATE_DETAILS);
+        updateHelpText(recordingQualitySelect, recordingQualityHelpDiv, RECORDING_QUALITY_DETAILS);
+        updateHelpText(redundancyLevelSelect, redundancyLevelHelpDiv, REDUNDANCY_LEVEL_DETAILS);
+        updateHelpText(managedServiceTierSelect, managedServiceTierHelpDiv, MANAGED_SERVICE_TIER_DETAILS);
+
+        // Event Listeners for sliders to update value spans
+        concurrentInputsInput.addEventListener('input', () => updateSliderValue(concurrentInputsInput, concurrentInputsValueSpan));
+        hoursPerMonthInput.addEventListener('input', () => updateSliderValue(hoursPerMonthInput, hoursPerMonthValueSpan));
+        mediaConnectFlowsInput.addEventListener('input', () => updateSliderValue(mediaConnectFlowsInput, mediaConnectFlowsValueSpan));
+        recordingHoursInput.addEventListener('input', () => updateSliderValue(recordingHoursInput, recordingHoursValueSpan));
+        outputDestinationsInput.addEventListener('input', () => updateSliderValue(outputDestinationsInput, outputDestinationsValueSpan));
+        peakViewersInput.addEventListener('input', () => updateSliderValue(peakViewersInput, peakViewersValueSpan));
+        avgViewDurationInput.addEventListener('input', () => updateSliderValue(avgViewDurationInput, avgViewDurationValueSpan));
+
+        // Event listeners for select elements to update help text
+        outputResolutionSelect.addEventListener('change', () => updateHelpText(outputResolutionSelect, outputResolutionHelpDiv, OUTPUT_RESOLUTION_DETAILS));
+        outputFrameRateSelect.addEventListener('change', () => updateHelpText(outputFrameRateSelect, outputFrameRateHelpDiv, OUTPUT_FRAMERATE_DETAILS));
+        recordingQualitySelect.addEventListener('change', () => updateHelpText(recordingQualitySelect, recordingQualityHelpDiv, RECORDING_QUALITY_DETAILS));
+        redundancyLevelSelect.addEventListener('change', () => updateHelpText(redundancyLevelSelect, redundancyLevelHelpDiv, REDUNDANCY_LEVEL_DETAILS));
+        managedServiceTierSelect.addEventListener('change', () => updateHelpText(managedServiceTierSelect, managedServiceTierHelpDiv, MANAGED_SERVICE_TIER_DETAILS));
+
+        // Toggle Advanced Settings visibility
+        toggleAdvancedButton.addEventListener('click', () => {
+            advancedSettingsDiv.classList.toggle('hidden');
+            if (advancedSettingsDiv.classList.contains('hidden')) {
+                toggleAdvancedButton.textContent = 'Show Advanced Settings';
+            } else {
+                toggleAdvancedButton.textContent = 'Hide Advanced Settings';
+            }
+        });
+
+        // Calculate Cost Function
+        function calculateCost() {
+            // Get values from inputs
+            const outputResolution = outputResolutionSelect.value;
+            const outputFrameRate = outputFrameRateSelect.value;
+            const concurrentInputs = parseInt(concurrentInputsInput.value);
+            const hoursPerMonth = parseInt(hoursPerMonthInput.value);
+            const mediaConnectFlows = parseInt(mediaConnectFlowsInput.value);
+
+            const recordingHours = parseInt(recordingHoursInput.value);
+            const recordingQuality = recordingQualitySelect.value;
+            const outputDestinations = parseInt(outputDestinationsInput.value);
+            const peakViewers = parseInt(peakViewersInput.value);
+            const avgViewDuration = parseInt(avgViewDurationInput.value);
+            const redundancyLevel = redundancyLevelSelect.value;
+            const managedServiceTier = managedServiceTierSelect.value;
+
+            // --- Compute Cost Calculation ---
+            let baseCostPerHour;
+            if (outputResolution === '720p' && outputFrameRate === '30fps') {
+                baseCostPerHour = BASE_COST_PER_HOUR_720P_30FPS;
+            } else if (outputResolution === '1080p' && outputFrameRate === '60fps') {
+                baseCostPerHour = BASE_COST_PER_HOUR_1080P_60FPS;
+            } else if (outputResolution === '4k' && outputFrameRate === '60fps') {
+                baseCostPerHour = BASE_COST_PER_HOUR_4K_60FPS;
+            } else if (outputResolution === '1080p' && outputFrameRate === '30fps') {
+                baseCostPerHour = BASE_COST_PER_HOUR_720P_30FPS + 0.5; // Example adjustment
+            } else if (outputResolution === '4k' && outputFrameRate === '30fps') {
+                baseCostPerHour = BASE_COST_PER_HOUR_1080P_60FPS + 1.0; // Example adjustment
+            }
+            // Add cost for concurrent inputs
+            const computeCost = (baseCostPerHour + (concurrentInputs * COST_PER_INPUT)) * hoursPerMonth;
+
+            // --- Storage Cost Calculation ---
+            // Convert recording hours to GB
+            // (Hours * 3600 seconds/hour * Mbps / 8 bits/byte) / 1024 MB/GB
+            const recordingMbps = RECORDING_BITRATE_MBPS[recordingQuality];
+            const recordingGB = (recordingHours * 3600 * recordingMbps) / 8 / 1024;
+            const totalStorageCost = recordingGB * COST_PER_GB_STORAGE;
+
+            // --- Media Flow Cost Calculation ---
+            const mediaConnectCost = mediaConnectFlows * COST_PER_FLOW_MEDIACONNECT;
+
+            // --- CDN & Egress Cost Calculation ---
+            // Estimate total data transferred to viewers
+            // Peak Viewers * Avg View Duration (minutes) * 60 seconds/minute * (Output Resolution Bitrate / 8 bits/byte)
+            // Assuming 1080p@60fps is ~5 Mbps for calculation simplicity for CDN egress
+            let outputBitrateMbps;
+            if (outputResolution === '720p') outputBitrateMbps = 3;
+            else if (outputResolution === '1080p') outputBitrateMbps = 5;
+            else if (outputResolution === '4k') outputBitrateMbps = 15;
+
+            const totalSecondsWatched = peakViewers * (avgViewDuration * 60);
+            const totalBitsTransferred = totalSecondsWatched * outputBitrateMbps * outputDestinations; // Multiply by destinations
+            const totalTBTransferred = totalBitsTransferred / (8 * 1024 * 1024 * 1024 * 1024); // Convert bits to TB
+            const cdnEgressCost = totalTBTransferred * COST_PER_TB_CDN_EGRESS;
+
+            // --- Redundancy Cost Calculation ---
+            const redundancyMultiplier = REDUNDANCY_MULTIPLIER[redundancyLevel];
+            const redundancyCost = computeCost * redundancyMultiplier; // Redundancy primarily affects compute instances
+
+            // --- Managed Service Cost Calculation ---
+            const subTotalForManagedService = computeCost + totalStorageCost + mediaConnectCost + cdnEgressCost + redundancyCost;
+            const managedServiceMultiplier = MANAGED_SERVICE_MULTIPLIER[managedServiceTier];
+            const managedServiceCost = subTotalForManagedService * managedServiceMultiplier;
+
+            // --- Calculate Grand Total ---
+            const grandTotal = subTotalForManagedService + managedServiceCost;
+
+            // Display Results
+            computeCostDisplay.textContent = `$${computeCost.toFixed(2)}`;
+            storageCostDisplay.textContent = `$${totalStorageCost.toFixed(2)}`;
+            mediaConnectCostDisplay.textContent = `$${mediaConnectCost.toFixed(2)}`;
+            cdnEgressCostDisplay.textContent = `$${cdnEgressCost.toFixed(2)}`;
+            redundancyCostDisplay.textContent = `$${redundancyCost.toFixed(2)}`;
+            managedServiceCostDisplay.textContent = `$${managedServiceCost.toFixed(2)}`;
+            grandTotalDisplay.textContent = `$${grandTotal.toFixed(2)} /mo`;
+        }
+
+        // Event listener for Calculate button
+        calculateCostButton.addEventListener('click', calculateCost);
+
+        // Initial calculation on page load
+        calculateCost();
+    </script>
+</body>
+</html>
